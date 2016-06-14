@@ -1,0 +1,35 @@
+{
+    "name": "dansup/ipfs-php",
+    "type": "library",
+    "description": "A PHP wrapper for the IPFS API server",
+    "keywords": [
+        "dansup",
+        "ipfs",
+        "api",
+        "library"
+    ],
+    "homepage": "https://github.com/dansup/php-ipfs-api",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniel Supernault",
+            "email": "danielsupernault@gmail.com",
+            "homepage": "https://keybase.io/dansup",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "guzzlehttp/guzzle": "6.2.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "~4.0||~5.0",
+        "scrutinizer/ocular": "~1.1",
+        "squizlabs/php_codesniffer": "~2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dansup\\IPFS\\": "src/"
+        }
+    }
+}
