@@ -6,66 +6,107 @@ use \GuzzleHttp\Guzzle;
 
 class ServerFactory
 {
-    /**
-     * Configuration parameters.
-     * @var array
-     */
-    protected $base;
-    protected $ip;
-    protected $gatewayPort;
-    protected $apiPort;
 
     /**
-     * Create ServerFactory instance.
-     * @param string $ip IP Address of IPFS node.
-     * @param integer $gatewayPort IPFS Gateway Port.
-     * @param integer $apiPort IPFS Api Port.
+     * Perform Guzzle REST Request.
+     * @return Guzzle Response.
      */
-    public function __construct ( 
-        $ip = 'localhost',
-        $gatewayPort = 8080,
-        $apiPort = 5001
-        )
-    {
-        $this->ip = $ip;
-        $this->gatewayPort = $gatewayPort;
-        $this->apiPort = $apiPort;
-        $this->base = "http://{$ip}:{$gatewayPort}/api/";
-    }
-    public function request ($url, $fullResponse = false, $method = "GET", $content = null)
+    public function request($url, $content = null, $method = "GET")
     {
         $client = new \GuzzleHttp\Client();
-        if($content !== null) {
-            $res = $client->request($method, $this->base.$url, ['file' => $content]);
+        if($content != null) {
+            $res = $client->request($method, $url, ['file' => $content]);
         } else {
-            $res = $client->request($method, $this->base.$url);
+            $res = $client->request($method, $url);
         }
-        $res = ($fullResponse == true) ? $res : $res->getBody();
-        return $res;
+        return $res->getBody();
     }
-    public static function add ($content, $fullResponse = false)
+
+    /**
+     * Add content to IPFS.
+     * @return object Guzzle Response.
+     */
+    public static function add($content)
     {
-        $path = "v0/add";
-        $response = (new self)->request($path, $fullResponse, "POST", $content);
-        return $response;
+        $path = "http://localhost:5001/api/v0/add";
+        $response = (new self)->request($path, $content);
+        return json_decode($response);
     }
-    public static function ls ($hash, $fullResponse = false)
+
+    /**
+     * Perform directory listing of IPFS hash.
+     * @return object Guzzle Response.
+     */
+    public static function ls($hash)
     {
-        $path = "v0/ls/{$hash}";
-        $response = (new self)->request($path, $fullResponse);
-        return $response;
+        $path = "http://localhost:5001/api/v0/ls/{$hash}";
+        $response = (new self)->request($path);
+        return json_decode($response);
     }
-    public static function size ($hash, $fullResponse = false)
+
+    /**
+     * Get file size of an IPFS Object.
+     * @return object Guzzle Response.
+     */
+    public static function size($hash)
     {
-        $path = "v0/object/stat/{$hash}";
-        $response = (new self)->request($path, $fullResponse);
-        return $response;
+        $path = "http://localhost:5001/api/v0/object/stat/{$hash}";
+        $response = (new self)->request($path);
+        return json_decode($response);
     }
-    public static function pin ($hash, $fullResponse = false)
+
+    /**
+     * cat an IPFS Object.
+     * @return object Guzzle Response.
+     */
+    public static function cat($hash)
     {
-        $path = "v0/pin/add/{$hash}";
-        $response = (new self)->request($path, $fullResponse);
+        $path = "http://localhost:8080/ipfs/{$hash}";
+        $response = (new self)->request($path);
         return $response;
     }
 
+    /**
+     * Pin IPFS hash.
+     * @return object Guzzle Response.
+     */
+    public static function pin($hash)
+    {
+        $path = "http://localhost:5001/api/v0/pin/add/{$hash}";
+        $response = (new self)->request($path);
+        return json_decode($response);
+    }
+
+    /**
+     * Get list of pinned IPFS objects.
+     * @return object Guzzle Response.
+     */
+    public static function pinList($type = "all")
+    {
+        $path = "http://localhost:5001/api/v0/pin/ls?&type={$type}";
+        $response = (new self)->request($path, null, "POST");
+        return json_decode($response);
+    }
+
+    /**
+     * Delete a pinned IPFS object.
+     * @return object Guzzle Response.
+     */
+    public static function pinRemove($hash)
+    {
+        $path = "http://localhost:5001/api/v0/pin/rm?&arg={$hash}";
+        $response = (new self)->request($path, null, "POST");
+        return json_decode($response);
+    }
+
+    /**
+     * Ping an IPFS node.
+     * @return object Guzzle Response.
+     */
+    public static function ping($address)
+    {
+        $path = "http://localhost:5001/api/v0/ping?arg={$address}";
+        $response = (new self)->request($path);
+        return json_decode($response);
+    }
 }
