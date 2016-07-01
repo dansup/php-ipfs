@@ -10,11 +10,21 @@ A PHP wrapper library for the IPFS API server.
 
     composer require dansup/php-ipfs
 
+## Usage
+
+A limited number of methods are supported at the moment, I hope to add them all eventually.
+
+``` php
+<?php
+
+use Dansup\IPFS\ServerFactory as IPFS;
+
+$ipfs = IPFS::driver('api')->size('QmeM5KhtRMpgp9JbF2FhJ7qA4yDZKDExGmwgYw9sMdELJE');
+echo json_encode($ipfs);
+
 ## Testing
 
-``` bash
-$ composer test
-```
+Tests coming soon!
 
 ## Contributing
 
