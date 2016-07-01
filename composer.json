@@ -1,5 +1,5 @@
 {
-    "name": "dansup/ipfs-php",
+    "name": "dansup/php-ipfs",
     "type": "library",
     "description": "A PHP wrapper for the IPFS API server",
     "keywords": [
@@ -8,7 +8,7 @@
         "api",
         "library"
     ],
-    "homepage": "https://github.com/dansup/php-ipfs-api",
+    "homepage": "https://github.com/dansup/php-ipfs",
     "license": "MIT",
     "authors": [
         {
