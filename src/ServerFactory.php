@@ -2,111 +2,60 @@
 
 namespace Dansup\IPFS;
 
-use \GuzzleHttp\Guzzle;
-
 class ServerFactory
 {
-
     /**
-     * Perform Guzzle REST Request.
-     * @return Guzzle Response.
+     * Configuration parameters.
+     * @var array
      */
-    public function request($url, $content = null, $method = "GET")
+    protected $config;
+
+    public function __construct(array $config = [])
     {
-        $client = new \GuzzleHttp\Client();
-        if($content != null) {
-            $res = $client->request($method, $url, ['file' => $content]);
-        } else {
-            $res = $client->request($method, $url);
-        }
-        return $res->getBody();
+        $this->config = $config;
     }
 
-    /**
-     * Add content to IPFS.
-     * @return object Guzzle Response.
-     */
-    public static function add($content)
+    public function getServer()
     {
-        $path = "http://localhost:5001/api/v0/add";
-        $response = (new self)->request($path, $content);
-        return json_decode($response);
+        $server = new Server(
+            $this->getDriver($this->config['driver'])//,
+            //$this->getCache(),
+            //$this->getApi()
+        );
+        //$server->setSourcePathPrefix($this->getSourcePathPrefix());
+        //$server->setCachePathPrefix($this->getCachePathPrefix());
+        //$server->setGroupCacheInFolders($this->getGroupCacheInFolders());
+        //$server->setDefaults($this->getDefaults());
+        //$server->setPresets($this->getPresets());
+        //$server->setBaseUrl($this->getBaseUrl());
+        //$server->setResponseFactory($this->getResponseFactory());
+        return (new $this->config['driverClass']);
     }
 
-    /**
-     * Perform directory listing of IPFS hash.
-     * @return object Guzzle Response.
-     */
-    public static function ls($hash)
+    public function getDrivers()
     {
-        $path = "http://localhost:5001/api/v0/ls/{$hash}";
-        $response = (new self)->request($path);
-        return json_decode($response);
+        return [
+        'api' => \Dansup\IPFS\Drivers\Api::class,
+        'cli' => \Dansup\IPFS\Drivers\Cli::class
+        ];
     }
 
-    /**
-     * Get file size of an IPFS Object.
-     * @return object Guzzle Response.
-     */
-    public static function size($hash)
+    public function getDriver($driver)
     {
-        $path = "http://localhost:5001/api/v0/object/stat/{$hash}";
-        $response = (new self)->request($path);
-        return json_decode($response);
+        $config = $this->config;
+        $config['driver'] = $driver;
+        $config['driverClass'] = $this->getDrivers()[$driver]; 
+        return $config;
+    }
+    /**
+     * Create configured server.
+     * @param  array  $config Configuration parameters.
+     * @return Server Configured server.
+     */
+    public static function driver($driver)
+    {
+        $config = (new self)->getDriver($driver);
+        return (new self($config))->getServer();
     }
 
-    /**
-     * cat an IPFS Object.
-     * @return object Guzzle Response.
-     */
-    public static function cat($hash)
-    {
-        $path = "http://localhost:8080/ipfs/{$hash}";
-        $response = (new self)->request($path);
-        return $response;
-    }
-
-    /**
-     * Pin IPFS hash.
-     * @return object Guzzle Response.
-     */
-    public static function pin($hash)
-    {
-        $path = "http://localhost:5001/api/v0/pin/add/{$hash}";
-        $response = (new self)->request($path);
-        return json_decode($response);
-    }
-
-    /**
-     * Get list of pinned IPFS objects.
-     * @return object Guzzle Response.
-     */
-    public static function pinList($type = "all")
-    {
-        $path = "http://localhost:5001/api/v0/pin/ls?&type={$type}";
-        $response = (new self)->request($path, null, "POST");
-        return json_decode($response);
-    }
-
-    /**
-     * Delete a pinned IPFS object.
-     * @return object Guzzle Response.
-     */
-    public static function pinRemove($hash)
-    {
-        $path = "http://localhost:5001/api/v0/pin/rm?&arg={$hash}";
-        $response = (new self)->request($path, null, "POST");
-        return json_decode($response);
-    }
-
-    /**
-     * Ping an IPFS node.
-     * @return object Guzzle Response.
-     */
-    public static function ping($address)
-    {
-        $path = "http://localhost:5001/api/v0/ping?arg={$address}";
-        $response = (new self)->request($path);
-        return json_decode($response);
-    }
 }
